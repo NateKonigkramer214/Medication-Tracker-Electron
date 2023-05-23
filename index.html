@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/MedicationTracker/style.css">  
+  <title>Medication Tracker</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 mb-8">
+        <h1>Medication</h1>
+        <form>
+          <div class="form-group">
+            <label for="medName">Medication Name</label>
+            <input type="text" class="form-control" id="medName" placeholder="Enter medication name">
+          </div>
+          <div class="form-group">
+            <label for="dosage">Dosage</label>
+            <input type="text" class="form-control" id="dosage" placeholder="Enter dosage">
+          </div>
+          <div class="form-group">
+            <label for="frequency">Date Taken</label>
+            <input type="text" class="form-control" id="frequency" placeholder="Enter date taken">
+          </div>
+          <button type="submit" class="button_submit">Add Medication</button>
+        </form>
+      </div>
+      <div class="col-md-6 mb-8" style="padding-left: 25px;">
+        <h1>Medication List</h1>
+        <table class="table table-striped">
+          <thead class="tableheadings">
+            <tr>
+              <th>Medication Name</th>
+              <th>Dosage</th>
+              <th>Date Taken</th>
+            </tr>
+          </thead>
+          <tbody id="medicationTableBody">
+            <!-- Medication items will be dynamically added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Script to add medication to table on page-->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Function to add medication to the table
+    function addMedication() {
+      var medName = document.getElementById('medName').value;
+      var dosage = document.getElementById('dosage').value;
+      var frequency = document.getElementById('frequency').value;
+
+      var tableBody = document.getElementById('medicationTableBody');
+      var newRow = tableBody.insertRow();
+
+      var medNameCell = newRow.insertCell(0);
+      medNameCell.innerHTML = medName;
+
+      var dosageCell = newRow.insertCell(1);
+      dosageCell.innerHTML = dosage;
+
+      var frequencyCell = newRow.insertCell(2);
+      frequencyCell.innerHTML = frequency;
+    }
+
+    // Submit form and add medication on button click
+    document.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      addMedication();
+      document.getElementById('medName').value = '';
+      document.getElementById('dosage').value = '';
+      document.getElementById('frequency').value = '';
+    });
+  </script>
+</body>
+</html>
