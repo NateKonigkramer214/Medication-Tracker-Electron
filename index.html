@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/MedicationTracker/style.css">  
+  <style>
+    .time-inputs,
+    .next-dosage-time-inputs {
+      margin-bottom: 10px;
+    }
+
+    .date-time-inputs,
+    .next-dosage-date-time-inputs {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
   <title>Medication Tracker</title>
 </head>
 <body>
@@ -21,9 +33,25 @@
             <label for="dosage">Dosage</label>
             <input type="text" class="form-control" id="dosage" placeholder="Enter dosage">
           </div>
-          <div class="form-group">
-            <label for="frequency">Date Taken</label>
-            <input type="text" class="form-control" id="frequency" placeholder="Enter date taken">
+          <div class="form-group date-time-inputs">
+            <div class="time-inputs">
+              <label for="timeTaken">Time Taken</label>
+              <input type="time" class="form-control" id="timeTaken">
+            </div>
+            <div class="date-inputs">
+              <label for="dateTaken">Date Taken</label>
+              <input type="date" class="form-control" id="dateTaken">
+            </div>
+          </div>
+          <div class="form-group next-dosage-date-time-inputs">
+            <div class="next-dosage-time-inputs">
+              <label for="nextDosageTime">Next Dosage Time</label>
+              <input type="time" class="form-control" id="nextDosageTime">
+            </div>
+            <div class="next-dosage-date-inputs">
+              <label for="nextDosageDate">Next Dosage Date</label>
+              <input type="date" class="form-control" id="nextDosageDate">
+            </div>
           </div>
           <button type="submit" class="button_submit">Add Medication</button>
         </form>
@@ -36,6 +64,7 @@
               <th>Medication Name</th>
               <th>Dosage</th>
               <th>Date Taken</th>
+              <th>Next Dosage</th>
             </tr>
           </thead>
           <tbody id="medicationTableBody">
@@ -45,17 +74,21 @@
       </div>
     </div>
   </div>
-  
 
-  <!-- Script to add medication to table on page-->
+  <!-- Script to add medication to table on page -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    // Function to add medication to the table
+    // Function to add medication to the table and set a reminder
     function addMedication() {
+      // Retrieve form input values
       var medName = document.getElementById('medName').value;
       var dosage = document.getElementById('dosage').value;
-      var frequency = document.getElementById('frequency').value;
+      var dateTaken = document.getElementById('dateTaken').value;
+      var timeTaken = document.getElementById('timeTaken').value;
+      var nextDosageDate = document.getElementById('nextDosageDate').value;
+      var nextDosageTime = document.getElementById('nextDosageTime').value;
 
+      // Get the table body
       var tableBody = document.getElementById('medicationTableBody');
       var newRow = tableBody.insertRow();
 
@@ -65,8 +98,61 @@
       var dosageCell = newRow.insertCell(1);
       dosageCell.innerHTML = dosage;
 
-      var frequencyCell = newRow.insertCell(2);
-      frequencyCell.innerHTML = frequency;
+      var dateTakenCell = newRow.insertCell(2);
+      dateTakenCell.innerHTML = dateTaken + ' ' + timeTaken;
+
+      var nextDosageCell = newRow.insertCell(3);
+      nextDosageCell.innerHTML = nextDosageDate + ' ' + nextDosageTime;
+
+      setReminder(newRow); // Set reminder for the new row
+    }
+
+    // Function to set a reminder for a medication
+    function setReminder(row) {
+      var medName = row.cells[0].innerHTML;
+      var dosage = row.cells[1].innerHTML;
+      var nextDosageDateTime = row.cells[3].innerHTML;
+
+      // Splitting the next dosage date and time
+      var [nextDosageDate, nextDosageTime] = nextDosageDateTime.split(' ');
+
+      // Constructing the next dosage date and time objects
+      var nextDosageDateTimeObj = new Date(nextDosageDate + 'T' + nextDosageTime);
+
+      // Calculating the time difference between now and the next dosage time
+      var timeDiff = nextDosageDateTimeObj.getTime() - Date.now();
+
+      // Scheduling the reminder notification
+      if (timeDiff > 0) {
+        setTimeout(function () {
+          showReminderNotification(medName, dosage);
+          row.deleteCell(4); // Remove the button cell
+        }, timeDiff);
+      }
+    }
+
+    // Function to display the reminder notification
+    function showReminderNotification(medName, dosage) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        var notificationOptions = {
+          body: 'Take ' + dosage + ' of ' + medName,
+          icon: 'bell.png' // Replace with the path to your notification icon
+        };
+
+        var notification = new Notification('Medication Reminder', notificationOptions);
+
+        // Close the notification after a certain duration
+        setTimeout(function () {
+          notification.close();
+        }, 10000); // Adjust the duration as needed
+      } else {
+        console.log('Reminder notification not supported by the browser or permission not granted.');
+      }
+    }
+
+    // Request permission for displaying notifications
+    if ('Notification' in window) {
+      Notification.requestPermission();
     }
 
     // Submit form and add medication on button click
@@ -75,7 +161,10 @@
       addMedication();
       document.getElementById('medName').value = '';
       document.getElementById('dosage').value = '';
-      document.getElementById('frequency').value = '';
+      document.getElementById('dateTaken').value = '';
+      document.getElementById('timeTaken').value = '';
+      document.getElementById('nextDosageDate').value = '';
+      document.getElementById('nextDosageTime').value = '';
     });
   </script>
 </body>
